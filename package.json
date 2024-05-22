@@ -7,7 +7,7 @@
     "doc": "doc"
   },
   "scripts": {
-    "test": "npm run test:biome",
+    "test": "npm run test:biome && npm run test:unit",
     "test:biome": "biome check src",
     "test:unit": "node --test src",
     "build": "rollup -c",
