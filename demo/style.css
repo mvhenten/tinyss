@@ -1,0 +1,45 @@
+body {
+  font: 14px/16px sans-serif;
+  color: #666;
+  background-color: aliceblue;
+  padding: 0;
+  margin: 0;
+}
+
+.flex-cols {
+  display: flex;
+  height: 100%;
+}
+
+.flex-shrink {
+  flex-shrink: 1;
+  background-color: #7a7a7a;
+}
+
+.flex-grow {
+  flex-grow: 2;
+}
+
+.content-body {
+  padding: 4em 2em;
+}
+
+.content-nav {
+  padding: 4em 2em;
+}
+
+.content-nav li {
+  list-style: none;
+}
+
+.content-nav li a {
+  text-decoration: none;
+  color: #eee;
+}
+
+pre {
+  font: 14px fixed;
+  background-color: #666;
+  color: #eee;
+  padding: 1em;
+}

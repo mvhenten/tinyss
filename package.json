@@ -11,6 +11,7 @@
     "test:biome": "biome check src",
     "test:unit": "node --test **/*.test.mjs",
     "build": "rollup -c",
+    "build:demo": "node bin/tinyss.mjs demo/*",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel start watch",
     "start": "serve -s build",
@@ -35,6 +36,7 @@
     "rollup": "^4.18.0",
     "serve": "^14.2.3",
     "toml": "^3.0.0",
+    "watchy": "^0.10.1",
     "yaml": "^2.4.2"
   }
 }
