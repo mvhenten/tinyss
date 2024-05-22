@@ -1,13 +1,12 @@
 import assert from "node:assert";
-import { mkdir, mkdtemp, readdir, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { mkdir, readdir, rm } from "node:fs/promises";
 import test from "node:test";
-import { createFixtures } from "./create-fixtures.mjs";
+import { createFixtures, makeTempDir } from "./create-fixtures.mjs";
 import { parseToTree } from "./parse.mjs";
 import { renderFromTree } from "./render.mjs";
 
 test("renderFromTree", async () => {
-	const outputDir = await mkdtemp(tmpdir());
+	const outputDir = await makeTempDir();
 	await mkdir(outputDir, { recursive: true });
 
 	const files = ["doc/index.md", "doc/child/about.md", "doc/contact.md"];

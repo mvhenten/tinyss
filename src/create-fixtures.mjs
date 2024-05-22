@@ -2,6 +2,8 @@ import { mkdir, mkdtemp, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import nodePath from "node:path";
 
+export const makeTempDir = () => mkdtemp(nodePath.join(tmpdir(), "tinyss"));
+
 export const createFixtures = async (files) => {
 	const base = await mkdtemp(nodePath.join(tmpdir(), "tinyss"));
 
