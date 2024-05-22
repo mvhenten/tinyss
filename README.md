@@ -9,7 +9,7 @@ A tiny static site generator, with zero configuration.
 Generate a static site from a directory containing markdown files to `output`:
 
 ```shell
-npx tinyss doc/**/* -o output
+npm init tinyss doc/**/* -o output
 ```
 
 ## Configuration
