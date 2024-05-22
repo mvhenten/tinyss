@@ -6,10 +6,7 @@ import { frontmatter, frontmatterHtml } from "micromark-extension-frontmatter";
 import { gfm, gfmHtml } from "micromark-extension-gfm";
 
 const defaultTemplate = `<!doctype html>
-<!--[if lt IE 7]> <html class="ie6 oldie" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="ie7 oldie" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="ie8 oldie" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en"> <!--<![endif]-->
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>{{title}}</title>
@@ -63,7 +60,7 @@ const getTemplate = async (templateName = "default") => {
 const renderFromTree = async (pagesTree, parentConfig = {}) => {
 	if (!pagesTree.children) return;
 
-	const config = { ...pagesTree.config, ...parentConfig };
+	const config = { ...parentConfig, ...pagesTree.config };
 
 	for (const page of pagesTree.children) {
 		await renderPage(config, page);
@@ -100,6 +97,7 @@ const renderPage = async (config, page) => {
 				title,
 				body,
 				info,
+				config,
 				templateRoot: nodePath.dirname(templatePath ?? ""),
 			}),
 		);

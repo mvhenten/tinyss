@@ -12,6 +12,8 @@ const mimeLib = new Mime(standardTypes, {
 	"application/handlebars": ["hbs", "handlebars"],
 });
 
+const targets = new Set();
+
 /**
  * @param {string} doc
  * @returns {Record<string, unknown>}
@@ -39,15 +41,22 @@ const parseFrontMatter = (doc) => {
  * @returns {string}
  */
 const mkTarget = ({ source, mime }) => {
-	const { ext, name, dir } = nodePath.parse(source);
-	const target = [dir];
-
-	if (mime === "application/javascript" || mime === "text/css")
-		return nodePath.join(...target, `${name}${ext}`);
-
+	if (mime === "application/javascript" || mime === "text/css") return source;
 	if (mime !== "text/markdown") return;
-	if (name !== "index") target.push(name);
-	return nodePath.join(...target, "index.html");
+
+	const { name, dir } = nodePath.parse(source);
+
+	const target =
+		name === "index"
+			? nodePath.join(dir, "index.html")
+			: nodePath.join(dir, name, "index.html");
+
+	if (targets.has(target))
+		throw new Error(`Found conflicting target ${target} for path: ${source}`);
+
+	targets.add(target);
+
+	return target;
 };
 
 /**
@@ -57,6 +66,7 @@ const mkTarget = ({ source, mime }) => {
  */
 const getConfig = async ({ source, mime }) => {
 	const data = (await readFile(source)).toString();
+
 	if (mime === "application/json") return JSON.parse(data);
 	if (mime === "text/yaml") return parseYaml(data);
 	if (mime === "application/toml") return toml.parse(data);
@@ -80,6 +90,7 @@ export const parseToTree = async (pages) => {
 		if ((await stat(source)).isFile()) {
 			const mime = mimeLib.getType(source);
 			const config = await getConfig({ source, mime });
+
 			node.href = mkTarget({ source, mime });
 			node.mime = mime;
 			node.title = config?.title ?? name;
