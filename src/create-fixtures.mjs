@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import nodePath from "node:path";
 
 export const createFixtures = async (files) => {
-	const base = await mkdtemp(tmpdir());
+	const base = await mkdtemp(nodePath.join(tmpdir(), "tinyss"));
 
 	const data = {
 		md: "## Some markdown\nexample *markdown*",
