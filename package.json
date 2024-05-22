@@ -9,7 +9,7 @@
   "scripts": {
     "test": "npm run test:biome && npm run test:unit",
     "test:biome": "biome check src",
-    "test:unit": "node --test src",
+    "test:unit": "node --test **/*.test.mjs",
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel start watch",
