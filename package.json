@@ -1,17 +1,18 @@
 {
-  "name": "diagrams",
-  "version": "1.0.0",
-  "description": "Store diagrams",
-  "main": "index.js",
-  "directories": {
-    "doc": "doc"
+  "name": "create-tinyss",
+  "version": "0.0.1",
+  "description": "A Tiny static site generator",
+  "main": "src/index.mjs",
+  "bin": {
+    "tinyss": "bin/cli.mjs"
   },
   "scripts": {
     "test": "npm run test:biome && npm run test:unit",
+    "prepare": "npm run build",
     "test:biome": "biome check src",
     "test:unit": "node --test **/*.test.mjs",
-    "build": "rollup -c",
-    "build:demo": "node bin/tinyss.mjs demo/*",
+    "build": "rollup -c && chmod +x bin/cli.mjs",
+    "build:demo": "./bin/cli.mjs demo/*",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel start watch",
     "start": "serve -s build",
@@ -34,6 +35,7 @@
     "npm-run-all": "^4.1.5",
     "prettier": "^3.2.5",
     "rollup": "^4.18.0",
+    "rollup-plugin-preserve-shebang": "^1.0.1",
     "serve": "^14.2.3",
     "toml": "^3.0.0",
     "watchy": "^0.10.1",

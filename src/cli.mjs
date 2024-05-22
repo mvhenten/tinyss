@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { rm } from "node:fs/promises";
 import nodePath from "node:path";
 import { parseArgs } from "node:util";
@@ -21,7 +22,10 @@ const run = async () => {
 		},
 	});
 
-	console.log("pages", pages);
+	if (pages.length === 0) {
+		console.error("No input files found.");
+		process.exit(1);
+	}
 
 	await rm(values.outputDir, { recursive: true, force: true });
 
