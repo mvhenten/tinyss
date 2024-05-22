@@ -9,6 +9,7 @@
   "scripts": {
     "test": "npm run test:biome",
     "test:biome": "biome check src",
+    "test:unit": "node --test src",
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "dev": "npm-run-all --parallel start watch",
