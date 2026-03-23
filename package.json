@@ -2,7 +2,8 @@
   "name": "create-tinyss",
   "version": "0.0.1",
   "description": "A Tiny static site generator",
-  "main": "src/index.mjs",
+  "type": "module",
+  "main": "src/index.ts",
   "bin": {
     "tinyss": "bin/cli.mjs"
   },
@@ -10,35 +11,34 @@
     "test": "npm run test:biome && npm run test:unit",
     "prepare": "npm run build",
     "test:biome": "biome check src",
-    "test:unit": "node --test **/*.test.mjs",
-    "build": "rollup -c && chmod +x bin/cli.mjs",
+    "test:unit": "node --experimental-transform-types --no-warnings --test 'src/**/*.test.ts'",
+    "build": "esbuild src/cli.ts --bundle --platform=node --target=node22 --outfile=bin/cli.mjs --format=esm --packages=external --jsx=automatic --jsx-import-source=preact --banner:js='#!/usr/bin/env node' && chmod +x bin/cli.mjs",
     "build:demo": "./bin/cli.mjs demo/*",
-    "watch": "rollup -c -w",
-    "dev": "npm-run-all --parallel start watch",
-    "start": "serve -s build",
-    "fix": "biome check --apply src"
+    "test:e2e": "playwright test",
+    "test:e2e:update": "playwright test --update-snapshots",
+    "fix": "biome check --apply src",
+    "dev": "node --experimental-transform-types --no-warnings src/cli.ts demo/* -o output --watch",
+    "generate:schema": "node --experimental-transform-types --no-warnings src/generate-schema.ts"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@biomejs/biome": "1.7.3",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-terser": "^0.4.4",
-    "handlebars": "^4.7.8",
+  "dependencies": {
+    "esbuild": "^0.27.4",
     "mdast-util-from-markdown": "^2.0.0",
     "mdast-util-frontmatter": "^2.0.1",
     "micromark": "^4.0.0",
     "micromark-extension-frontmatter": "^2.0.0",
     "micromark-extension-gfm": "^3.0.0",
     "mime": "^4.0.3",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.2.5",
-    "rollup": "^4.18.0",
-    "rollup-plugin-preserve-shebang": "^1.0.1",
-    "serve": "^14.2.3",
+    "preact": "^10.29.0",
+    "preact-render-to-string": "^6.6.6",
     "toml": "^3.0.0",
-    "watchy": "^0.10.1",
-    "yaml": "^2.4.2"
+    "yaml": "^2.4.2",
+    "zod": "^4.3.6",
+    "zod-to-json-schema": "^3.25.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.7.3",
+    "@playwright/test": "^1.58.2"
   }
 }

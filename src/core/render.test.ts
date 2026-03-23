@@ -1,9 +1,9 @@
 import assert from "node:assert";
 import { mkdir, readdir, rm } from "node:fs/promises";
 import test from "node:test";
-import { createFixtures, makeTempDir } from "./create-fixtures.mjs";
-import { parseToTree } from "./parse.mjs";
-import { renderFromTree } from "./render.mjs";
+import { createFixtures, makeTempDir } from "./create-fixtures.ts";
+import { parseToTree } from "./parse.ts";
+import { renderFromTree } from "./render.ts";
 
 test("renderFromTree", async () => {
 	const outputDir = await makeTempDir();

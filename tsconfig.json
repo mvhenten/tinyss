@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "ES2024",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"strict": true,
+		"declaration": true,
+		"declarationDir": "dist",
+		"outDir": "dist",
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"resolveJsonModule": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact"
+	},
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
+}

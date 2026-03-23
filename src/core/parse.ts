@@ -7,18 +7,14 @@ import { Mime } from "mime/lite";
 import standardTypes from "mime/types/standard.js";
 import toml from "toml";
 import { parse as parseYaml } from "yaml";
+import type { PagesTree, PathNode } from "./types.ts";
 
 const mimeLib = new Mime(standardTypes, {
 	"application/handlebars": ["hbs", "handlebars"],
+	"application/x-tsx-template": ["tsx"],
 });
 
-const targets = new Set();
-
-/**
- * @param {string} doc
- * @returns {Record<string, unknown>}
- */
-const parseFrontMatter = (doc) => {
+const parseFrontMatter = (doc: string): Record<string, unknown> => {
 	const tree = fromMarkdown(doc, {
 		extensions: [frontmatter(["yaml", "toml"])],
 		mdastExtensions: [frontmatterFromMarkdown(["yaml", "toml"])],
@@ -27,7 +23,7 @@ const parseFrontMatter = (doc) => {
 	const [firstChild] = tree.children;
 
 	if (firstChild && firstChild.type === "yaml")
-		return parseYaml(firstChild.value);
+		return parseYaml(firstChild.value) as Record<string, unknown>;
 
 	if (firstChild && firstChild.type === "toml")
 		return toml.parse(firstChild.value);
@@ -35,12 +31,11 @@ const parseFrontMatter = (doc) => {
 	return {};
 };
 
-/**
- *
- * @param {{source: string, mime: string}} param0
- * @returns {string}
- */
-const mkTarget = ({ source, mime }) => {
+const mkTarget = (
+	source: string,
+	mime: string,
+	targets: Set<string>,
+): string | undefined => {
 	if (mime === "application/javascript" || mime === "text/css") return source;
 	if (mime !== "text/markdown") return;
 
@@ -59,47 +54,48 @@ const mkTarget = ({ source, mime }) => {
 	return target;
 };
 
-/**
- *
- * @param {{ source: string, mime: string }} param0
- * @returns {Promise<string>}
- */
-const getConfig = async ({ source, mime }) => {
+const getConfig = async (
+	source: string,
+	mime: string,
+): Promise<Record<string, unknown> | undefined> => {
 	const data = (await readFile(source)).toString();
 
-	if (mime === "application/json") return JSON.parse(data);
-	if (mime === "text/yaml") return parseYaml(data);
-	if (mime === "application/toml") return toml.parse(data);
+	if (mime === "application/json")
+		return JSON.parse(data) as Record<string, unknown>;
+	if (mime === "text/yaml") return parseYaml(data) as Record<string, unknown>;
+	if (mime === "application/toml")
+		return toml.parse(data) as Record<string, unknown>;
 	if (mime === "text/markdown") return parseFrontMatter(data);
 };
 
-/**
- * @param {string} outputDir
- * @param {string[]} pages
- * @returns {PagesTree}
- */
-export const parseToTree = async (pages) => {
-	/** @type { Record<string, PathNode> } */
-	const lookup = {};
+export const parseToTree = async (pages: string[]): Promise<PagesTree> => {
+	const targets = new Set<string>();
+	const lookup: Record<string, PagesTree> = {};
 
 	for (const source of pages) {
-		const { name, dir } = nodePath.parse(source);
-		const parent = lookup[dir] ?? { children: [], config: {} };
-		const node = { source };
+		const { dir } = nodePath.parse(source);
+		const parent: PagesTree = lookup[dir] ?? { children: [], config: {} };
+		const node: PathNode = { source, extensions: {} };
 
 		if ((await stat(source)).isFile()) {
-			const mime = mimeLib.getType(source);
-			const config = await getConfig({ source, mime });
+			const mime = mimeLib.getType(source) ?? "";
+			const config = await getConfig(source, mime);
 
-			node.href = mkTarget({ source, mime });
+			node.href = mkTarget(source, mime, targets);
 			node.mime = mime;
-			node.title = config?.title ?? name;
+			node.title = (config?.title as string) ?? nodePath.parse(source).name;
 		}
 
-		if (/(yaml|json|toml)$/.test(node.mime))
-			parent.config = { ...parent.config, ...(await getConfig(node)) };
+		if (node.mime && /(yaml|json|toml)$/.test(node.mime))
+			parent.config = {
+				...parent.config,
+				...(await getConfig(node.source, node.mime)),
+			};
 
-		if (node.mime === "application/handlebars")
+		if (
+			node.mime === "application/handlebars" ||
+			node.mime === "application/x-tsx-template"
+		)
 			parent.config.template = node.source;
 
 		parent.children.push(node);
