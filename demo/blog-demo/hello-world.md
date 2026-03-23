@@ -1,6 +1,9 @@
 ---
 title: Hello World
 date: "2024-12-15"
+tags:
+  - introduction
+  - static-sites
 ---
 
 Welcome to our very first blog post! We are excited to share our journey building static sites with Tinyss.

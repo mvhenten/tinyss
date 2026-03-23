@@ -1,5 +1,11 @@
 ---
 title: Project Alpha
+description: A design system built for scalability and consistency across multiple product lines.
+tags:
+  - design-systems
+  - web-components
+  - accessibility
+year: 2024
 ---
 
 A design system built for scalability and consistency across multiple product lines.

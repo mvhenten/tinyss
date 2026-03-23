@@ -26,6 +26,20 @@ test.describe("blog template", () => {
 		await expect(page.locator("h1.blog-title")).toHaveText("The Tinyss Blog");
 	});
 
+	test("post cards are displayed on index", async ({ page }) => {
+		await page.goto("/demo/blog-demo/index.html");
+
+		const postCards = page.locator("article.post-card");
+		expect(await postCards.count()).toBeGreaterThanOrEqual(3);
+	});
+
+	test("post cards show excerpts", async ({ page }) => {
+		await page.goto("/demo/blog-demo/index.html");
+
+		const excerpts = page.locator(".post-card-excerpt");
+		expect(await excerpts.count()).toBeGreaterThanOrEqual(1);
+	});
+
 	test("individual post page renders", async ({ page }) => {
 		await page.goto("/demo/blog-demo/hello-world/index.html");
 

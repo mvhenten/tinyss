@@ -84,6 +84,11 @@ export const parseToTree = async (pages: string[]): Promise<PagesTree> => {
 			node.href = mkTarget(source, mime, targets);
 			node.mime = mime;
 			node.title = (config?.title as string) ?? nodePath.parse(source).name;
+
+			if (mime === "text/markdown" && config) {
+				const { title: _title, ...rest } = config;
+				node.extensions = { ...node.extensions, ...rest };
+			}
 		}
 
 		if (node.mime && /(yaml|json|toml)$/.test(node.mime))

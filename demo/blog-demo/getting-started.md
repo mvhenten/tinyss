@@ -1,6 +1,9 @@
 ---
 title: Getting Started with Tinyss
 date: "2025-01-10"
+tags:
+  - tutorial
+  - getting-started
 ---
 
 A practical guide to building your first static site with Tinyss, from installation to deployment.

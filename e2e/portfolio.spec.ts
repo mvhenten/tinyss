@@ -30,6 +30,13 @@ test.describe("portfolio template", () => {
 		await expect(heading).toHaveText("Selected Work");
 	});
 
+	test("project cards are displayed in grid", async ({ page }) => {
+		await page.goto("/demo/portfolio-demo/index.html");
+
+		const projectCards = page.locator("article.project-card");
+		expect(await projectCards.count()).toBeGreaterThanOrEqual(3);
+	});
+
 	test("project detail page renders", async ({ page }) => {
 		await page.goto("/demo/portfolio-demo/project-alpha/index.html");
 

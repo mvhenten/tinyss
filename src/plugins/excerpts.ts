@@ -2,14 +2,20 @@ import { readFile } from "node:fs/promises";
 import type { Plugin } from "../core/plugin.ts";
 
 const MORE_MARKER = "<!-- more -->";
+const FRONTMATTER_REGEX = /^---\n[\s\S]*?\n---\n/;
+
+function stripFrontmatter(content: string): string {
+	return content.replace(FRONTMATTER_REGEX, "");
+}
 
 function extractExcerpt(content: string): string {
-	const moreIndex = content.indexOf(MORE_MARKER);
+	const body = stripFrontmatter(content);
+	const moreIndex = body.indexOf(MORE_MARKER);
 	if (moreIndex !== -1) {
-		return content.slice(0, moreIndex).trim();
+		return body.slice(0, moreIndex).trim();
 	}
 
-	const lines = content.split("\n");
+	const lines = body.split("\n");
 	const paragraphs: string[] = [];
 	let current = "";
 

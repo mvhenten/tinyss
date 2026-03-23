@@ -1,6 +1,10 @@
 import { type VNode, h } from "preact";
 import type { Page, TemplateProps } from "../core/types.ts";
 
+function isIndexPage(page: Page): boolean {
+	return page.source.endsWith("/index.md") || page.source === "index.md";
+}
+
 function estimateReadingTime(html: string): number {
 	const text = html.replace(/<[^>]*>/g, "");
 	const words = text.split(/\s+/).filter((w) => w.length > 0).length;
@@ -10,9 +14,7 @@ function estimateReadingTime(html: string): number {
 function isListingPage(title: string, pages: Page[]): boolean {
 	const currentPage = pages.find((p) => p.title === title);
 	if (!currentPage) return false;
-	return (
-		currentPage.href.endsWith("/index.html") || title.toLowerCase() === "index"
-	);
+	return isIndexPage(currentPage) || title.toLowerCase() === "index";
 }
 
 function formatDate(dateStr: unknown): string {
@@ -49,9 +51,7 @@ function PostCard(page: Page): VNode {
 
 function PostListing(pages: Page[], siteTitle: string): VNode {
 	const posts = pages
-		.filter(
-			(p) => p.mime === "text/markdown" && !p.href.endsWith("/index.html"),
-		)
+		.filter((p) => p.mime === "text/markdown" && !isIndexPage(p))
 		.sort((a, b) => {
 			const dateA = a.extensions.date as string | undefined;
 			const dateB = b.extensions.date as string | undefined;
@@ -80,10 +80,7 @@ function PostDetail(title: string, body: string, pages: Page[]): VNode {
 	const readingTime = estimateReadingTime(body);
 
 	const otherPosts = pages.filter(
-		(p) =>
-			p.mime === "text/markdown" &&
-			p.title !== title &&
-			!p.href.endsWith("/index.html"),
+		(p) => p.mime === "text/markdown" && p.title !== title && !isIndexPage(p),
 	);
 
 	return h(

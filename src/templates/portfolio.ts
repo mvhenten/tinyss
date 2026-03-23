@@ -1,12 +1,14 @@
 import { type VNode, h } from "preact";
 import type { Page, TemplateProps } from "../core/types.ts";
 
+function isIndexPage(page: Page): boolean {
+	return page.source.endsWith("/index.md") || page.source === "index.md";
+}
+
 function isOverviewPage(title: string, pages: Page[]): boolean {
 	const currentPage = pages.find((p) => p.title === title);
 	if (!currentPage) return false;
-	return (
-		currentPage.href.endsWith("/index.html") || title.toLowerCase() === "index"
-	);
+	return isIndexPage(currentPage) || title.toLowerCase() === "index";
 }
 
 function ProjectCard(page: Page): VNode {
@@ -300,7 +302,7 @@ export default function PortfolioTemplate({
 	const siteTitle = (config.title as string | undefined) ?? "Portfolio";
 	const overview = isOverviewPage(title, pages);
 	const projects = pages.filter(
-		(p) => p.mime === "text/markdown" && !p.href.endsWith("/index.html"),
+		(p) => p.mime === "text/markdown" && !isIndexPage(p),
 	);
 
 	const navPages = pages.filter((p) => p.mime === "text/markdown");
