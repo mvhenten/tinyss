@@ -1,12 +1,13 @@
-import { rm } from "node:fs/promises";
+import { mkdir, rm } from "node:fs/promises";
 import nodePath from "node:path";
 import { excerptsPlugin, pagesPlugin, tocPlugin } from "../plugins/index.ts";
 import type { TinyssConfig } from "./config.ts";
 import { parseToTree } from "./parse.ts";
 import type { Plugin, PluginContext } from "./plugin.ts";
 import { createPluginRunner } from "./plugin.ts";
-import { renderFromTree } from "./render.ts";
+import { renderToMap, writeToDir } from "./render.ts";
 import { flattenPages } from "./tree-utils.ts";
+import type { OutputMap } from "./types.ts";
 
 const templatePlugins: Record<string, () => Plugin[]> = {
 	docs: () => [pagesPlugin(), tocPlugin()],
@@ -27,7 +28,7 @@ export interface BuildOptions {
 	plugins: Plugin[];
 }
 
-export async function build(options: BuildOptions): Promise<void> {
+export async function buildToMap(options: BuildOptions): Promise<OutputMap> {
 	const { config, pages, plugins } = options;
 	const outputDir = nodePath.resolve(config.outputDir);
 	const userRunner = createPluginRunner(plugins);
@@ -41,7 +42,6 @@ export async function build(options: BuildOptions): Promise<void> {
 
 	await userRunner.run("beforeParse", ctx);
 
-	await rm(outputDir, { recursive: true, force: true });
 	const tree = await parseToTree(pages);
 	ctx.tree = tree;
 	ctx.pages = flattenPages(tree);
@@ -58,12 +58,22 @@ export async function build(options: BuildOptions): Promise<void> {
 
 	if (config.json) {
 		console.log(JSON.stringify(tree, null, 2));
-		return;
+		return new Map();
 	}
 
 	await runner.run("beforeRender", ctx);
 
-	await renderFromTree(tree, { ...config, outputDir, _pages: ctx.pages });
+	const outputMap = await renderToMap(tree, { ...config, _pages: ctx.pages });
 
 	await runner.run("afterRender", ctx);
+
+	return outputMap;
+}
+
+export async function build(options: BuildOptions): Promise<void> {
+	const outputDir = nodePath.resolve(options.config.outputDir);
+	await rm(outputDir, { recursive: true, force: true });
+	await mkdir(outputDir, { recursive: true });
+	const outputMap = await buildToMap(options);
+	await writeToDir(outputMap, outputDir);
 }

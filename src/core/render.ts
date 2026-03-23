@@ -1,10 +1,4 @@
-import {
-	copyFile,
-	mkdir,
-	mkdtemp,
-	readFile,
-	writeFile,
-} from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import nodePath from "node:path";
 import { build as esbuild } from "esbuild";
@@ -18,7 +12,13 @@ import DefaultTemplate from "../templates/default.ts";
 import DocsTemplate from "../templates/docs.ts";
 import MarketingTemplate from "../templates/marketing.ts";
 import PortfolioTemplate from "../templates/portfolio.ts";
-import type { Page, PagesTree, PathNode, TemplateProps } from "./types.ts";
+import type {
+	OutputMap,
+	Page,
+	PagesTree,
+	PathNode,
+	TemplateProps,
+} from "./types.ts";
 
 type TemplateComponent = (props: TemplateProps) => VNode;
 
@@ -77,28 +77,13 @@ const getTemplate = async (
 	return templateCache.get(templateName) as TemplateComponent;
 };
 
-const renderFromTree = async (
-	pagesTree: PagesTree | PathNode,
-	parentConfig: Record<string, unknown> = {},
-): Promise<void> => {
-	if (!pagesTree.children) return;
-
-	const config = { ...parentConfig, ...pagesTree.config };
-
-	for (const page of pagesTree.children) {
-		await renderPage(config, page);
-		await renderFromTree(page, config);
-	}
-};
-
-const renderPage = async (
+const renderPageToBuffer = async (
 	config: Record<string, unknown>,
 	page: PathNode,
-): Promise<void> => {
-	if (!page.href) return;
+): Promise<{ href: string; content: Buffer } | undefined> => {
+	if (!page.href) return undefined;
 
 	const { source, title, mime, href, info } = page;
-	const outputTarget = nodePath.join(config.outputDir as string, href);
 
 	if (mime === "text/markdown") {
 		const data = await readFile(source);
@@ -122,16 +107,79 @@ const renderPage = async (
 			}),
 		);
 
-		await mkdir(nodePath.dirname(outputTarget), { recursive: true });
-		await writeFile(outputTarget, `<!doctype html>\n${html}`);
+		return { href, content: Buffer.from(`<!doctype html>\n${html}`) };
 	}
 
 	if (mime === "application/javascript" || mime === "text/css") {
-		await mkdir(nodePath.dirname(outputTarget), { recursive: true });
-		await copyFile(source, outputTarget);
+		const content = await readFile(source);
+		return { href, content };
 	}
 
-	console.log(`${source} --> ${outputTarget}`);
+	return undefined;
 };
 
-export { renderFromTree };
+const findRootDir = (pagesTree: PagesTree | PathNode): string => {
+	if (!pagesTree.children?.length) return "";
+	const firstChild = pagesTree.children[0];
+	return nodePath.dirname(firstChild.source);
+};
+
+const collectPages = async (
+	pagesTree: PagesTree | PathNode,
+	parentConfig: Record<string, unknown>,
+	output: OutputMap,
+	rootDir: string,
+): Promise<void> => {
+	if (!pagesTree.children) return;
+
+	const config = { ...parentConfig, ...pagesTree.config };
+
+	for (const page of pagesTree.children) {
+		const result = await renderPageToBuffer(config, page);
+		if (result) {
+			const relativeHref = nodePath.relative(rootDir, result.href);
+			output.set(relativeHref, result.content);
+		}
+		await collectPages(page, config, output, rootDir);
+	}
+};
+
+const relativizePages = (pages: Page[], rootDir: string): Page[] =>
+	pages.map((p) => ({
+		...p,
+		href: nodePath.relative(rootDir, p.href),
+	}));
+
+const renderToMap = async (
+	pagesTree: PagesTree | PathNode,
+	parentConfig: Record<string, unknown> = {},
+): Promise<OutputMap> => {
+	const output: OutputMap = new Map();
+	const rootDir = findRootDir(pagesTree);
+	const pages = (parentConfig._pages as Page[] | undefined) ?? [];
+	const config = { ...parentConfig, _pages: relativizePages(pages, rootDir) };
+	await collectPages(pagesTree, config, output, rootDir);
+	return output;
+};
+
+const writeToDir = async (
+	outputMap: OutputMap,
+	outputDir: string,
+): Promise<void> => {
+	for (const [href, content] of outputMap) {
+		const outputTarget = nodePath.join(outputDir, href);
+		await mkdir(nodePath.dirname(outputTarget), { recursive: true });
+		await writeFile(outputTarget, content);
+	}
+};
+
+const renderFromTree = async (
+	pagesTree: PagesTree | PathNode,
+	parentConfig: Record<string, unknown> = {},
+): Promise<void> => {
+	const outputDir = parentConfig.outputDir as string;
+	const output = await renderToMap(pagesTree, parentConfig);
+	await writeToDir(output, outputDir);
+};
+
+export { renderFromTree, renderToMap, writeToDir };

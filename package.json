@@ -17,7 +17,7 @@
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
     "fix": "biome check --apply src",
-    "dev": "node --experimental-transform-types --no-warnings src/cli.ts demo/* -o output --watch",
+    "dev": "node --experimental-transform-types --no-warnings src/cli.ts serve demo/* --port 3000",
     "generate:schema": "node --experimental-transform-types --no-warnings src/generate-schema.ts"
   },
   "author": "",

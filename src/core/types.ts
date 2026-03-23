@@ -29,3 +29,5 @@ export interface TemplateProps {
 	pages: Page[];
 	templateRoot: string;
 }
+
+export type OutputMap = Map<string, Buffer>;

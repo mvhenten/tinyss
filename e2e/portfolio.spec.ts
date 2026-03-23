@@ -5,13 +5,13 @@ test.describe("portfolio template", () => {
 		const errors: string[] = [];
 		page.on("pageerror", (err) => errors.push(err.message));
 
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 
 		expect(errors).toHaveLength(0);
 	});
 
 	test("site header is present", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 
 		const header = page.locator("header.site-header");
 		await expect(header).toBeVisible();
@@ -21,7 +21,7 @@ test.describe("portfolio template", () => {
 	});
 
 	test("overview section is present", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 
 		const overview = page.locator("div.overview");
 		await expect(overview).toBeVisible();
@@ -31,21 +31,21 @@ test.describe("portfolio template", () => {
 	});
 
 	test("project cards are displayed in grid", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 
 		const projectCards = page.locator("article.project-card");
 		expect(await projectCards.count()).toBeGreaterThanOrEqual(3);
 	});
 
 	test("project detail page renders", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/project-alpha/index.html");
+		await page.goto("/project-alpha/index.html");
 
 		await expect(page.locator("body")).toBeVisible();
 		await expect(page.locator("header.site-header")).toBeVisible();
 	});
 
 	test("navigation links work", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 
 		const projectLink = page.locator("header.site-header nav a", {
 			hasText: "Project Alpha",
@@ -56,7 +56,7 @@ test.describe("portfolio template", () => {
 	});
 
 	test("visual baseline", async ({ page }) => {
-		await page.goto("/demo/portfolio-demo/index.html");
+		await page.goto("/");
 		await expect(page).toHaveScreenshot("portfolio-index.png");
 	});
 });

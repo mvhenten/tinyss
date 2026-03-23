@@ -5,13 +5,13 @@ test.describe("docs template", () => {
 		const errors: string[] = [];
 		page.on("pageerror", (err) => errors.push(err.message));
 
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 
 		expect(errors).toHaveLength(0);
 	});
 
 	test("sidebar navigation is present", async ({ page }) => {
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 
 		const sidebar = page.locator("nav.sidebar");
 		await expect(sidebar).toBeVisible();
@@ -21,13 +21,13 @@ test.describe("docs template", () => {
 	});
 
 	test("page title is rendered", async ({ page }) => {
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 
 		await expect(page).toHaveTitle(/Tinyss Documentation/);
 	});
 
 	test("content body is rendered", async ({ page }) => {
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 
 		const main = page.locator("main.content");
 		await expect(main).toBeVisible();
@@ -37,7 +37,7 @@ test.describe("docs template", () => {
 	});
 
 	test("navigation links work", async ({ page }) => {
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 
 		const installationLink = page.locator("nav.sidebar a", {
 			hasText: "Installation",
@@ -49,7 +49,7 @@ test.describe("docs template", () => {
 	});
 
 	test("visual baseline", async ({ page }) => {
-		await page.goto("/demo/docs-demo/index.html");
+		await page.goto("/");
 		await expect(page).toHaveScreenshot("docs-index.png");
 	});
 });

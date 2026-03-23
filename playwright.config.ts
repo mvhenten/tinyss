@@ -1,7 +1,5 @@
 import { defineConfig } from "@playwright/test";
 
-const OUTPUT_DIR = "/tmp/tinyss-e2e";
-
 export default defineConfig({
 	testDir: "./e2e",
 	fullyParallel: true,
@@ -45,22 +43,22 @@ export default defineConfig({
 	],
 	webServer: [
 		{
-			command: `node e2e/serve-cli.mjs ${OUTPUT_DIR}/docs-demo 3100`,
+			command: "./bin/cli.mjs serve demo/docs-demo/* --port 3100",
 			port: 3100,
 			reuseExistingServer: !process.env.CI,
 		},
 		{
-			command: `node e2e/serve-cli.mjs ${OUTPUT_DIR}/blog-demo 3101`,
+			command: "./bin/cli.mjs serve demo/blog-demo/* --port 3101",
 			port: 3101,
 			reuseExistingServer: !process.env.CI,
 		},
 		{
-			command: `node e2e/serve-cli.mjs ${OUTPUT_DIR}/marketing-demo 3102`,
+			command: "./bin/cli.mjs serve demo/marketing-demo/* --port 3102",
 			port: 3102,
 			reuseExistingServer: !process.env.CI,
 		},
 		{
-			command: `node e2e/serve-cli.mjs ${OUTPUT_DIR}/portfolio-demo 3103`,
+			command: "./bin/cli.mjs serve demo/portfolio-demo/* --port 3103",
 			port: 3103,
 			reuseExistingServer: !process.env.CI,
 		},
