@@ -110,12 +110,8 @@ const renderPageToBuffer = async (
 		return { href, content: Buffer.from(`<!doctype html>\n${html}`) };
 	}
 
-	if (mime === "application/javascript" || mime === "text/css") {
-		const content = await readFile(source);
-		return { href, content };
-	}
-
-	return undefined;
+	const content = await readFile(source);
+	return { href, content };
 };
 
 const findRootDir = (pagesTree: PagesTree | PathNode): string => {

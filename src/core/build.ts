@@ -1,6 +1,13 @@
 import { mkdir, rm } from "node:fs/promises";
 import nodePath from "node:path";
-import { excerptsPlugin, pagesPlugin, tocPlugin } from "../plugins/index.ts";
+import {
+	excerptsPlugin,
+	pagesPlugin,
+	rssPlugin,
+	searchPlugin,
+	sitemapPlugin,
+	tocPlugin,
+} from "../plugins/index.ts";
 import type { TinyssConfig } from "./config.ts";
 import { parseToTree } from "./parse.ts";
 import type { Plugin, PluginContext } from "./plugin.ts";
@@ -20,6 +27,35 @@ function pluginsForTemplate(templateName: string): Plugin[] {
 	const factory = templatePlugins[templateName];
 	if (!factory) return [];
 	return factory();
+}
+
+const pluginRegistry: Record<string, () => Plugin> = {
+	pages: pagesPlugin,
+	excerpts: excerptsPlugin,
+	toc: tocPlugin,
+	rss: rssPlugin,
+	sitemap: sitemapPlugin,
+	search: searchPlugin,
+};
+
+function resolveConfigPlugins(names: string[]): Plugin[] {
+	return names.map((name) => {
+		const factory = pluginRegistry[name];
+		if (!factory) {
+			throw new Error(
+				`Unknown plugin "${name}". Available plugins: ${Object.keys(
+					pluginRegistry,
+				).join(", ")}`,
+			);
+		}
+		return factory();
+	});
+}
+
+function mergeNamedPlugins(base: Plugin[], extra: Plugin[]): Plugin[] {
+	const names = new Set(base.map((plugin) => plugin.name));
+	const added = extra.filter((plugin) => !names.has(plugin.name));
+	return [...base, ...added];
 }
 
 export interface BuildOptions {
@@ -51,7 +87,11 @@ export async function buildToMap(options: BuildOptions): Promise<OutputMap> {
 		(tree.config.template as string | undefined) ??
 		"default";
 	const autoPlugins = pluginsForTemplate(templateName);
-	const allPlugins = [...autoPlugins, ...plugins];
+	const configPlugins = resolveConfigPlugins(config.plugins);
+	const allPlugins = [
+		...mergeNamedPlugins(autoPlugins, configPlugins),
+		...plugins,
+	];
 	const runner = createPluginRunner(allPlugins);
 
 	await runner.run("afterParse", ctx);

@@ -115,3 +115,66 @@ test("sitemap plugin generates sitemap.xml when siteUrl is set", async () => {
 	await cleanup();
 	await rm(outputDir, { recursive: true, force: true });
 });
+
+test("config plugins array resolves plugins by name", async () => {
+	const { paths, cleanup, base } = await createFixtures([
+		"doc/index.md",
+		"doc/about.md",
+	]);
+
+	const outputDir = `${base}-out`;
+	const config = {
+		...baseConfig,
+		outputDir,
+		plugins: ["excerpts", "rss"],
+		siteUrl: "https://example.com",
+	};
+
+	await build({ config, pages: paths, plugins: [] });
+
+	const feed = await readFile(`${outputDir}/feed.xml`, "utf-8");
+
+	assert.ok(feed.includes("<rss version"));
+	assert.ok(feed.includes("example"));
+
+	await cleanup();
+	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("config plugins merge with template plugins without duplicates", async () => {
+	const { paths, cleanup, base } = await createFixtures([
+		"doc/index.md",
+		"doc/about.md",
+	]);
+
+	const outputDir = `${base}-out`;
+	const config = {
+		...baseConfig,
+		outputDir,
+		template: "blog",
+		plugins: ["excerpts", "rss"],
+		siteUrl: "https://example.com",
+	};
+
+	await build({ config, pages: paths, plugins: [] });
+
+	const feed = await readFile(`${outputDir}/feed.xml`, "utf-8");
+	assert.ok(feed.includes("<rss version"));
+
+	await cleanup();
+	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("unknown config plugin name fails fast", async () => {
+	const { paths, cleanup, base } = await createFixtures(["doc/index.md"]);
+
+	const outputDir = `${base}-out`;
+	const config = { ...baseConfig, outputDir, plugins: ["nope"] };
+
+	await assert.rejects(() => build({ config, pages: paths, plugins: [] }), {
+		message: /^Unknown plugin "nope"/,
+	});
+
+	await cleanup();
+	await rm(outputDir, { recursive: true, force: true });
+});

@@ -31,13 +31,28 @@ const parseFrontMatter = (doc: string): Record<string, unknown> => {
 	return {};
 };
 
+const consumedMimes = new Set([
+	"text/yaml",
+	"application/json",
+	"application/toml",
+	"application/handlebars",
+	"application/x-tsx-template",
+]);
+
+const configMimes = new Set([
+	"text/yaml",
+	"application/json",
+	"application/toml",
+	"text/markdown",
+]);
+
 const mkTarget = (
 	source: string,
 	mime: string,
 	targets: Set<string>,
 ): string | undefined => {
-	if (mime === "application/javascript" || mime === "text/css") return source;
-	if (mime !== "text/markdown") return;
+	if (consumedMimes.has(mime)) return;
+	if (mime !== "text/markdown") return source;
 
 	const { name, dir } = nodePath.parse(source);
 
@@ -79,7 +94,9 @@ export const parseToTree = async (pages: string[]): Promise<PagesTree> => {
 
 		if ((await stat(source)).isFile()) {
 			const mime = mimeLib.getType(source) ?? "";
-			const config = await getConfig(source, mime);
+			const config = configMimes.has(mime)
+				? await getConfig(source, mime)
+				: undefined;
 
 			node.href = mkTarget(source, mime, targets);
 			node.mime = mime;

@@ -20,7 +20,8 @@ Subdirectories inherit configuration.
 - A file like `name.md` is rendered to `name/index.html`
 - Config-like files (yaml, toml, json) are read and added to the context.
 - Custom templates may be defined in config or added to the directory.
-- CSS and javascript files are copied over to the output directory.
+- All other files (CSS, javascript, images, fonts, ...) are copied over to the output directory.
+- Plugins can be enabled in `tinyss.config.json` with `"plugins": ["excerpts", "rss"]`.
 
 Given the following input:
 
