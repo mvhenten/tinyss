@@ -1,6 +1,6 @@
 {
   "name": "create-tinyss",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A Tiny static site generator",
   "type": "module",
   "main": "src/index.ts",
