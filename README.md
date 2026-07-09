@@ -22,6 +22,7 @@ Subdirectories inherit configuration.
 - Custom templates may be defined in config or added to the directory.
 - All other files (CSS, javascript, images, fonts, ...) are copied over to the output directory.
 - Plugins can be enabled in `tinyss.config.json` with `"plugins": ["excerpts", "rss"]`.
+- The `rss` plugin writes `output/feed.xml`, an RSS 2.0 feed of pages with a `date` in frontmatter, newest first, once `siteUrl` is set in the config.
 
 Given the following input:
 
