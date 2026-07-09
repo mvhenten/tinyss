@@ -1,3 +1,4 @@
+import nodePath from "node:path";
 import type { Page, PagesTree, PathNode } from "./types.ts";
 
 export function flattenPages(tree: PagesTree): Page[] {
@@ -21,4 +22,17 @@ function collectPages(nodes: PathNode[], pages: Page[]): void {
 			collectPages(node.children, pages);
 		}
 	}
+}
+
+export function findRootDir(pagesTree: PagesTree | PathNode): string {
+	if (!pagesTree.children?.length) return "";
+	const firstChild = pagesTree.children[0];
+	return nodePath.dirname(firstChild.source);
+}
+
+export function relativizePages(pages: Page[], rootDir: string): Page[] {
+	return pages.map((p) => ({
+		...p,
+		href: nodePath.relative(rootDir, p.href),
+	}));
 }

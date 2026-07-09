@@ -13,7 +13,7 @@ import { parseToTree } from "./parse.ts";
 import type { Plugin, PluginContext } from "./plugin.ts";
 import { createPluginRunner } from "./plugin.ts";
 import { renderToMap, writeToDir } from "./render.ts";
-import { flattenPages } from "./tree-utils.ts";
+import { findRootDir, flattenPages, relativizePages } from "./tree-utils.ts";
 import type { OutputMap } from "./types.ts";
 
 const templatePlugins: Record<string, () => Plugin[]> = {
@@ -80,7 +80,7 @@ export async function buildToMap(options: BuildOptions): Promise<OutputMap> {
 
 	const tree = await parseToTree(pages);
 	ctx.tree = tree;
-	ctx.pages = flattenPages(tree);
+	ctx.pages = relativizePages(flattenPages(tree), findRootDir(tree));
 
 	const templateName =
 		(config.template as string | undefined) ??

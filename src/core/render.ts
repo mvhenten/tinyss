@@ -12,6 +12,7 @@ import DefaultTemplate from "../templates/default.ts";
 import DocsTemplate from "../templates/docs.ts";
 import MarketingTemplate from "../templates/marketing.ts";
 import PortfolioTemplate from "../templates/portfolio.ts";
+import { findRootDir } from "./tree-utils.ts";
 import type {
 	OutputMap,
 	Page,
@@ -114,12 +115,6 @@ const renderPageToBuffer = async (
 	return { href, content };
 };
 
-const findRootDir = (pagesTree: PagesTree | PathNode): string => {
-	if (!pagesTree.children?.length) return "";
-	const firstChild = pagesTree.children[0];
-	return nodePath.dirname(firstChild.source);
-};
-
 const collectPages = async (
 	pagesTree: PagesTree | PathNode,
 	parentConfig: Record<string, unknown>,
@@ -140,21 +135,13 @@ const collectPages = async (
 	}
 };
 
-const relativizePages = (pages: Page[], rootDir: string): Page[] =>
-	pages.map((p) => ({
-		...p,
-		href: nodePath.relative(rootDir, p.href),
-	}));
-
 const renderToMap = async (
 	pagesTree: PagesTree | PathNode,
 	parentConfig: Record<string, unknown> = {},
 ): Promise<OutputMap> => {
 	const output: OutputMap = new Map();
 	const rootDir = findRootDir(pagesTree);
-	const pages = (parentConfig._pages as Page[] | undefined) ?? [];
-	const config = { ...parentConfig, _pages: relativizePages(pages, rootDir) };
-	await collectPages(pagesTree, config, output, rootDir);
+	await collectPages(pagesTree, parentConfig, output, rootDir);
 	return output;
 };
 

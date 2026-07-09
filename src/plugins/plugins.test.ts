@@ -1,5 +1,6 @@
 import assert from "node:assert";
-import { readFile, rm } from "node:fs/promises";
+import { readFile, readdir, rm } from "node:fs/promises";
+import nodePath from "node:path";
 import test from "node:test";
 import { build } from "../core/build.ts";
 import type { TinyssConfig } from "../core/config.ts";
@@ -111,6 +112,33 @@ test("sitemap plugin generates sitemap.xml when siteUrl is set", async () => {
 
 	assert.ok(sitemap.includes("<urlset"));
 	assert.ok(sitemap.includes("https://example.com"));
+
+	await cleanup();
+	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("sitemap plugin excludes the pages-root directory for nested pages", async () => {
+	const { cleanup, base } = await createFixtures([
+		"site/index.md",
+		"site/posts/foo/index.md",
+	]);
+
+	const pagesRoot = nodePath.join(base, "site");
+	const entries = await readdir(pagesRoot, { recursive: true });
+	const paths = entries.map((entry) => nodePath.join(pagesRoot, entry));
+
+	const outputDir = `${base}-out`;
+	const config = { ...baseConfig, outputDir, siteUrl: "https://example.com" };
+
+	await build({ config, pages: paths, plugins: [sitemapPlugin()] });
+
+	const sitemapPath = `${outputDir}/sitemap.xml`;
+	const sitemap = await readFile(sitemapPath, "utf-8");
+
+	assert.ok(
+		sitemap.includes("<loc>https://example.com/posts/foo/index.html</loc>"),
+	);
+	assert.ok(!sitemap.includes("/site/"));
 
 	await cleanup();
 	await rm(outputDir, { recursive: true, force: true });

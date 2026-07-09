@@ -1,5 +1,6 @@
 import assert from "node:assert";
-import { readFile, rm } from "node:fs/promises";
+import { readFile, readdir, rm } from "node:fs/promises";
+import nodePath from "node:path";
 import test from "node:test";
 import { build } from "../core/build.ts";
 import type { TinyssConfig } from "../core/config.ts";
@@ -82,7 +83,7 @@ test("rss plugin emits RFC 822 pubDate and permalink guid", async () => {
 
 	assert.match(
 		feed,
-		/<guid isPermaLink="true">https:\/\/example\.com\/.*doc\/post\/index\.html<\/guid>/,
+		/<guid isPermaLink="true">https:\/\/example\.com\/post\/index\.html<\/guid>/,
 	);
 	assert.ok(!feed.includes("example.com//"));
 
@@ -141,6 +142,41 @@ test("rss plugin includes excerpt as item description", async () => {
 	assert.ok(
 		feed.includes("<description>This is the excerpt text.</description>"),
 	);
+
+	await rm(base, { recursive: true, force: true });
+	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("rss plugin link and guid exclude the pages-root directory for nested pages", async () => {
+	const base = await makeTempDir();
+	const outputDir = `${base}-out`;
+
+	await createFile(
+		base,
+		"site/index.md",
+		'---\ntitle: Home\ndate: "2024-01-01"\n---\nHome.',
+	);
+	await createFile(
+		base,
+		"site/posts/foo/index.md",
+		'---\ntitle: Foo\ndate: "2024-03-15"\n---\nFoo post.',
+	);
+
+	const pagesRoot = `${base}/site`;
+	const entries = await readdir(pagesRoot, { recursive: true });
+	const paths = entries.map((entry) => nodePath.join(pagesRoot, entry));
+
+	const config = { ...baseConfig, outputDir, siteUrl: "https://example.com" };
+	await build({ config, pages: paths, plugins: [rssPlugin()] });
+
+	const feed = await readFile(`${outputDir}/feed.xml`, "utf-8");
+
+	assert.ok(
+		feed.includes(
+			'<guid isPermaLink="true">https://example.com/posts/foo/index.html</guid>',
+		),
+	);
+	assert.ok(!feed.includes("/site/"));
 
 	await rm(base, { recursive: true, force: true });
 	await rm(outputDir, { recursive: true, force: true });
