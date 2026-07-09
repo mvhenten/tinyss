@@ -137,3 +137,77 @@ test("index contains expected terms from test content", async () => {
 	await rm(base, { recursive: true, force: true });
 	await rm(outputDir, { recursive: true, force: true });
 });
+
+test("a term appearing only in the title is still indexed", async () => {
+	const base = await makeTempDir();
+	const outputDir = `${base}-out`;
+
+	await createFile(
+		base,
+		"doc/otters.md",
+		"---\ntitle: The Secret Life of Otters\n---\n# Otters\nThis page has nothing to do with the aquatic mammal.",
+	);
+
+	const paths = [`${base}/doc/otters.md`];
+
+	const config = { ...baseConfig, outputDir };
+	await build({ config, pages: paths, plugins: [searchPlugin()] });
+
+	const indexPath = `${outputDir}/search-index.json`;
+	const raw = await readFile(indexPath, "utf-8");
+	const parsed = JSON.parse(raw) as {
+		docs: { href: string; title: string; excerpt: string }[];
+		index: Record<string, [number, number][]>;
+	};
+
+	assert.ok("otters" in parsed.index);
+	assert.strictEqual(parsed.index.otters.length, 1);
+	assert.strictEqual(parsed.index.otters[0][0], 0);
+
+	await rm(base, { recursive: true, force: true });
+	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("a title match outranks a body-only match for the same term", async () => {
+	const base = await makeTempDir();
+	const outputDir = `${base}-out`;
+
+	await createFile(
+		base,
+		"doc/index.md",
+		"---\ntitle: Home Page\n---\n# Welcome\nVampire stories are scary.",
+	);
+	await createFile(
+		base,
+		"doc/vampires.md",
+		"---\ntitle: The Vampire Chronicles\n---\n# Chronicles\nThis page discusses fiction tropes.",
+	);
+
+	const paths = [`${base}/doc/index.md`, `${base}/doc/vampires.md`];
+
+	const config = { ...baseConfig, outputDir };
+	await build({ config, pages: paths, plugins: [searchPlugin()] });
+
+	const indexPath = `${outputDir}/search-index.json`;
+	const raw = await readFile(indexPath, "utf-8");
+	const parsed = JSON.parse(raw) as {
+		docs: { href: string; title: string; excerpt: string }[];
+		index: Record<string, [number, number][]>;
+	};
+
+	const titleDocIdx = parsed.docs.findIndex((d) => d.title.includes("Vampire"));
+	const bodyDocIdx = parsed.docs.findIndex((d) => d.title === "Home Page");
+
+	const entries = parsed.index.vampire;
+	assert.ok(entries);
+
+	const titleScore = entries.find(([idx]) => idx === titleDocIdx)?.[1];
+	const bodyScore = entries.find(([idx]) => idx === bodyDocIdx)?.[1];
+
+	assert.ok(titleScore !== undefined);
+	assert.ok(bodyScore !== undefined);
+	assert.ok(titleScore > bodyScore);
+
+	await rm(base, { recursive: true, force: true });
+	await rm(outputDir, { recursive: true, force: true });
+});

@@ -103,6 +103,31 @@ function extractExcerpt(text: string, maxLength = 150): string {
 	return `${trimmed.slice(0, maxLength).trimEnd()}...`;
 }
 
+const TITLE_BOOST = 0.5;
+
+function applyTitleBoost(
+	docs: DocEntry[],
+	index: Record<string, [number, number][]>,
+	stopWords: Set<string>,
+): void {
+	for (let docIdx = 0; docIdx < docs.length; docIdx++) {
+		const titleTokens = new Set(tokenize(docs[docIdx].title, stopWords));
+
+		for (const term of titleTokens) {
+			const entries = index[term] ?? [];
+			const existing = entries.find(([idx]) => idx === docIdx);
+
+			if (existing) {
+				existing[1] = Math.round((existing[1] + TITLE_BOOST) * 1000) / 1000;
+			} else {
+				entries.push([docIdx, TITLE_BOOST]);
+			}
+
+			index[term] = entries;
+		}
+	}
+}
+
 function buildIndex(
 	pages: Page[],
 	texts: string[],
@@ -165,6 +190,8 @@ function buildIndex(
 			index[term] = entries;
 		}
 	}
+
+	applyTitleBoost(docs, index, stopWords);
 
 	return { docs, index };
 }
