@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
+import { MORE_MARKER } from "../core/more-marker.ts";
 import type { Plugin } from "../core/plugin.ts";
 
-const MORE_MARKER = "<!-- more -->";
 const FRONTMATTER_REGEX = /^---\n[\s\S]*?\n---\n/;
 
 function stripFrontmatter(content: string): string {

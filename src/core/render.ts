@@ -12,6 +12,7 @@ import DefaultTemplate from "../templates/default.ts";
 import DocsTemplate from "../templates/docs.ts";
 import MarketingTemplate from "../templates/marketing.ts";
 import PortfolioTemplate from "../templates/portfolio.ts";
+import { stripMoreMarker } from "./more-marker.ts";
 import { findRootDir } from "./tree-utils.ts";
 import type {
 	OutputMap,
@@ -87,12 +88,12 @@ const renderPageToBuffer = async (
 	const { source, title, mime, href, info } = page;
 
 	if (mime === "text/markdown") {
-		const data = await readFile(source);
+		const data = await readFile(source, "utf-8");
 		const templatePath =
 			(info?.template as string | undefined) ??
 			(config.template as string | undefined);
 
-		const body = micromark(data, {
+		const body = micromark(stripMoreMarker(data), {
 			extensions: [gfm(), frontmatter()],
 			htmlExtensions: [gfmHtml(), frontmatterHtml()],
 		});

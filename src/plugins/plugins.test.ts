@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { readFile, readdir, rm } from "node:fs/promises";
+import { readFile, readdir, rm, writeFile } from "node:fs/promises";
 import nodePath from "node:path";
 import test from "node:test";
 import { build } from "../core/build.ts";
@@ -44,6 +44,51 @@ test("excerpts plugin extracts first paragraph", async () => {
 
 	await cleanup();
 	await rm(outputDir, { recursive: true, force: true });
+});
+
+test("excerpts plugin cuts content at the more marker on its own line", async () => {
+	const { paths, cleanup, base } = await createFixtures(["doc/index.md"]);
+	const source = paths.find((path) => path.endsWith(".md")) as string;
+	await writeFile(
+		source,
+		"Excerpt paragraph.\n\n<!-- more -->\n\nRest of the post.",
+	);
+
+	const outputDir = `${base}-out`;
+	const config = { ...baseConfig, outputDir };
+	const ctx = {
+		config,
+		tree: { children: [], config: {} },
+		pages: [{ source, href: "", title: "", mime: "", extensions: {} }],
+		outputDir,
+	};
+
+	await excerptsPlugin().afterParse?.(ctx);
+
+	assert.strictEqual(ctx.pages[0].extensions.excerpt, "Excerpt paragraph.");
+
+	await cleanup();
+});
+
+test("excerpts plugin cuts content at a mid-paragraph more marker", async () => {
+	const { paths, cleanup, base } = await createFixtures(["doc/index.md"]);
+	const source = paths.find((path) => path.endsWith(".md")) as string;
+	await writeFile(source, "Excerpt text <!-- more --> hidden text.");
+
+	const outputDir = `${base}-out`;
+	const config = { ...baseConfig, outputDir };
+	const ctx = {
+		config,
+		tree: { children: [], config: {} },
+		pages: [{ source, href: "", title: "", mime: "", extensions: {} }],
+		outputDir,
+	};
+
+	await excerptsPlugin().afterParse?.(ctx);
+
+	assert.strictEqual(ctx.pages[0].extensions.excerpt, "Excerpt text");
+
+	await cleanup();
 });
 
 test("toc plugin extracts headings", async () => {

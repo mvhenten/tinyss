@@ -2,7 +2,8 @@ import assert from "node:assert";
 import { mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import nodePath from "node:path";
 import test from "node:test";
-import { createFixtures, makeTempDir } from "./create-fixtures.ts";
+import { createFile, createFixtures, makeTempDir } from "./create-fixtures.ts";
+import { MORE_MARKER } from "./more-marker.ts";
 import { parseToTree } from "./parse.ts";
 import { renderFromTree, renderToMap } from "./render.ts";
 
@@ -85,6 +86,45 @@ test("renderToMap copies static assets verbatim to mirrored paths", async () => 
 	assert(outputMap.has("doc/script.js"));
 
 	await cleanup();
+});
+
+test("renderToMap strips the more marker on its own line from rendered HTML", async () => {
+	const base = await makeTempDir();
+	const content = "Excerpt paragraph.\n\n<!-- more -->\n\nRest of the post.";
+	const filePath = await createFile(base, "doc/index.md", content);
+
+	const tree = await parseToTree([filePath]);
+	const outputMap = await renderToMap(tree);
+
+	const html = [...outputMap.values()]
+		.map((buffer) => buffer.toString("utf-8"))
+		.join("\n");
+
+	assert(!html.includes(MORE_MARKER));
+	assert(!html.includes("more --"));
+	assert(html.includes("Excerpt paragraph."));
+	assert(html.includes("Rest of the post."));
+
+	await rm(base, { recursive: true });
+});
+
+test("renderToMap strips a mid-paragraph more marker from rendered HTML", async () => {
+	const base = await makeTempDir();
+	const content = "Some text <!-- more --> continues right here.";
+	const filePath = await createFile(base, "doc/index.md", content);
+
+	const tree = await parseToTree([filePath]);
+	const outputMap = await renderToMap(tree);
+
+	const html = [...outputMap.values()]
+		.map((buffer) => buffer.toString("utf-8"))
+		.join("\n");
+
+	assert(!html.includes(MORE_MARKER));
+	assert(!html.includes("more --"));
+	assert(html.includes("Some text continues right here."));
+
+	await rm(base, { recursive: true });
 });
 
 test("renderToMap consumes config files instead of copying them", async () => {
