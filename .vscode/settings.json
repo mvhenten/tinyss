@@ -1,0 +1,7 @@
+{
+	"npm.enableScriptExplorer": true,
+	"npm.scriptExplorerAction": "run",
+	"task.allowAutomaticTasks": "on",
+	"editor.defaultFormatter": "biomejs.biome",
+	"editor.formatOnSave": true
+}

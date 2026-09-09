@@ -1,0 +1,79 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "install",
+			"label": "install",
+			"problemMatcher": [],
+			"presentation": { "reveal": "always", "panel": "dedicated" },
+			"runOptions": { "runOn": "folderOpen" }
+		},
+		{
+			"type": "npm",
+			"script": "dev",
+			"label": "dev",
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"label": "build",
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "build:demo",
+			"label": "build:demo",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "test",
+			"label": "test",
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "test:unit",
+			"label": "test:unit",
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "test:biome",
+			"label": "test:biome",
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "test:e2e",
+			"label": "test:e2e",
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "test:e2e:update",
+			"label": "test:e2e:update",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "fix",
+			"label": "fix",
+			"problemMatcher": []
+		},
+		{
+			"type": "npm",
+			"script": "generate:schema",
+			"label": "generate:schema",
+			"problemMatcher": []
+		}
+	]
+}

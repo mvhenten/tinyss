@@ -1,0 +1,15 @@
+{
+	"name": "tinyss",
+	"features": {
+		"ghcr.io/devcontainers/features/node:1": {
+			"version": "22"
+		}
+	},
+	"forwardPorts": [3000],
+	"postStartCommand": "npm install",
+	"customizations": {
+		"vscode": {
+			"extensions": ["anthropic.claude-code", "biomejs.biome"]
+		}
+	}
+}
