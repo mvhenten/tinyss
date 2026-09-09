@@ -5,7 +5,6 @@
 			"version": "26"
 		}
 	},
-	"forwardPorts": [3000],
 	"postStartCommand": "npm install",
 	"customizations": {
 		"vscode": {
