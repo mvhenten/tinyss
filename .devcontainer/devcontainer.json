@@ -5,10 +5,20 @@
 			"version": "26"
 		}
 	},
+	"forwardPorts": [3000],
 	"postStartCommand": "npm install",
 	"customizations": {
 		"vscode": {
-			"extensions": ["anthropic.claude-code", "biomejs.biome"]
+			"extensions": ["anthropic.claude-code", "biomejs.biome"],
+			"settings": {
+				"npm.enableScriptExplorer": true,
+				"npm.scriptExplorerAction": "run",
+				"task.allowAutomaticTasks": "on",
+				"editor.defaultFormatter": "biomejs.biome",
+				"editor.formatOnSave": true,
+				"chat.disableAIFeatures": true,
+				"claudeCode.preferredLocation": "sidebar"
+			}
 		}
 	}
 }
