@@ -132,4 +132,4 @@ bin
 output
 test-results/
 playwright-report/
-.claude/worktrees/
+.claude/
