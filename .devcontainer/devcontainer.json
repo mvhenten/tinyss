@@ -2,7 +2,7 @@
 	"name": "tinyss",
 	"features": {
 		"ghcr.io/devcontainers/features/node:1": {
-			"version": "22"
+			"version": "26"
 		}
 	},
 	"forwardPorts": [3000],
