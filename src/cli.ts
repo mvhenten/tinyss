@@ -55,7 +55,7 @@ const runServe = async (args: string[]): Promise<void> => {
 		args,
 		allowPositionals: true,
 		options: {
-			port: { type: "string", short: "p", default: "3000" },
+			port: { type: "string", short: "p", default: process.env.PORT ?? "3000" },
 		},
 	});
 
