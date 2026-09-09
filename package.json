@@ -21,7 +21,7 @@
     "generate:schema": "node --experimental-transform-types --no-warnings src/generate-schema.ts"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "esbuild": "^0.27.4",
     "mdast-util-from-markdown": "^2.0.0",

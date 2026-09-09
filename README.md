@@ -45,3 +45,7 @@ doc/contributing.md --> output/doc/contributing/index.html
 ## Motivation
 
 This is a hobby project - mostly playing around with node 20+ features - and exploring the small complexties of a simple idea: a static site generator that works with zero configuration.
+
+## License
+
+Tinyss is released under the [MIT License](./LICENSE).
