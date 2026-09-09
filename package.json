@@ -11,14 +11,17 @@
     "test": "npm run test:biome && npm run test:unit",
     "prepare": "npm run build",
     "test:biome": "biome check src",
-    "test:unit": "node --experimental-transform-types --no-warnings --test 'src/**/*.test.ts'",
-    "build": "esbuild src/cli.ts --bundle --platform=node --target=node22 --outfile=bin/cli.mjs --format=esm --packages=external --jsx=automatic --jsx-import-source=preact --banner:js='#!/usr/bin/env node' && chmod +x bin/cli.mjs",
+    "test:unit": "node --test 'src/**/*.test.ts'",
+    "build": "esbuild src/cli.ts --bundle --platform=node --target=node24 --outfile=bin/cli.mjs --format=esm --packages=external --jsx=automatic --jsx-import-source=preact --banner:js='#!/usr/bin/env node' && chmod +x bin/cli.mjs",
     "build:demo": "./bin/cli.mjs demo/*",
     "test:e2e": "playwright test",
     "test:e2e:update": "playwright test --update-snapshots",
     "fix": "biome check --apply src",
-    "dev": "node --experimental-transform-types --no-warnings src/cli.ts serve demo/*",
-    "generate:schema": "node --experimental-transform-types --no-warnings src/generate-schema.ts"
+    "dev": "node src/cli.ts serve demo/*",
+    "generate:schema": "node src/generate-schema.ts"
+  },
+  "engines": {
+    "node": ">=24"
   },
   "author": "",
   "license": "MIT",
