@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import nodePath from "node:path";
 import type { Plugin } from "../core/plugin.ts";
+import { canonicalHref } from "../core/tree-utils.ts";
 
 function escapeXml(str: string): string {
 	return str
@@ -25,7 +26,9 @@ export function sitemapPlugin(): Plugin {
 			const urls = ctx.pages
 				.map(
 					(page) =>
-						`  <url><loc>${escapeXml(`${siteUrl}/${page.href}`)}</loc></url>`,
+						`  <url><loc>${escapeXml(
+							`${siteUrl}/${canonicalHref(page.href)}`,
+						)}</loc></url>`,
 				)
 				.join("\n");
 

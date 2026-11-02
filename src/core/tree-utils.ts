@@ -36,3 +36,7 @@ export function relativizePages(pages: Page[], rootDir: string): Page[] {
 		href: nodePath.relative(rootDir, p.href),
 	}));
 }
+
+export function canonicalHref(href: string): string {
+	return href.replace(/(^|\/)index\.html$/, "$1");
+}

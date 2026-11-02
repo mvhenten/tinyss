@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import nodePath from "node:path";
 import type { Plugin } from "../core/plugin.ts";
+import { canonicalHref } from "../core/tree-utils.ts";
 import type { Page } from "../core/types.ts";
 
 function escapeXml(str: string): string {
@@ -50,7 +51,7 @@ function toDatedPages(pages: Page[]): DatedPage[] {
 }
 
 function buildItem({ page, date }: DatedPage, siteUrl: string): string {
-	const url = joinUrl(siteUrl, page.href);
+	const url = joinUrl(siteUrl, canonicalHref(page.href));
 	const description = asString(page.extensions.excerpt) ?? "";
 
 	return `    <item>
