@@ -18,7 +18,9 @@
     "test:e2e:update": "playwright test --update-snapshots",
     "fix": "biome check --apply src",
     "dev": "node src/cli.ts serve demo/*",
-    "generate:schema": "node src/generate-schema.ts"
+    "generate:schema": "node src/generate-schema.ts",
+    "release": "semantic-release",
+    "release:dry-run": "semantic-release --dry-run"
   },
   "engines": {
     "node": ">=24"
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.7.3",
-    "@playwright/test": "^1.58.2"
+    "@playwright/test": "^1.58.2",
+    "semantic-release": "^25.0.9"
   }
 }
