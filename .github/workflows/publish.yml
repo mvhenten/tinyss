@@ -1,30 +1,36 @@
+# Auth is the NPM_TOKEN secret, a stopgap until npm accepts GitHub's immutable
+# OIDC subjects (https://github.com/npm/cli/issues/9969); the swap is deleting the secret and the NODE_AUTH_TOKEN line.
 name: Publish
 
 on:
   push:
-    tags: [ "v*" ]
+    branches: [main]
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
 
 permissions:
+  contents: write
   id-token: write
-  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   publish:
-
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v7
-    - name: Use Node.js 24
-      uses: actions/setup-node@v7
-      with:
-        node-version: 24.x
-        registry-url: 'https://registry.npmjs.org'
-        cache: 'npm'
-    - name: Ensure npm 11.5.1+ for trusted publishing
-      run: npm install -g npm@11
-    - run: npm ci
-    - run: npm test
-    - run: npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - run: npm ci
+      - run: npm test
+      - run: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
