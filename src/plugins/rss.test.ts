@@ -83,7 +83,7 @@ test("rss plugin emits RFC 822 pubDate and permalink guid", async () => {
 
 	assert.match(
 		feed,
-		/<guid isPermaLink="true">https:\/\/example\.com\/post\/index\.html<\/guid>/,
+		/<guid isPermaLink="true">https:\/\/example\.com\/post\/<\/guid>/,
 	);
 	assert.ok(!feed.includes("example.com//"));
 
@@ -173,9 +173,14 @@ test("rss plugin link and guid exclude the pages-root directory for nested pages
 
 	assert.ok(
 		feed.includes(
-			'<guid isPermaLink="true">https://example.com/posts/foo/index.html</guid>',
+			'<guid isPermaLink="true">https://example.com/posts/foo/</guid>',
 		),
 	);
+	assert.ok(feed.includes("<link>https://example.com/posts/foo/</link>"));
+	assert.ok(
+		feed.includes('<guid isPermaLink="true">https://example.com/</guid>'),
+	);
+	assert.ok(feed.includes("<link>https://example.com/</link>"));
 	assert.ok(!feed.includes("/site/"));
 
 	await rm(base, { recursive: true, force: true });

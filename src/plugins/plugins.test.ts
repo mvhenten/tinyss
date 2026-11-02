@@ -180,9 +180,8 @@ test("sitemap plugin excludes the pages-root directory for nested pages", async 
 	const sitemapPath = `${outputDir}/sitemap.xml`;
 	const sitemap = await readFile(sitemapPath, "utf-8");
 
-	assert.ok(
-		sitemap.includes("<loc>https://example.com/posts/foo/index.html</loc>"),
-	);
+	assert.ok(sitemap.includes("<loc>https://example.com/posts/foo/</loc>"));
+	assert.ok(sitemap.includes("<loc>https://example.com/</loc>"));
 	assert.ok(!sitemap.includes("/site/"));
 
 	await cleanup();
